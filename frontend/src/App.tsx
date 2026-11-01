@@ -60,9 +60,13 @@ export default function App() {
   const refreshMembers = async () => { await refetchMembers(); };
 
   return <div className="min-h-screen bg-background">
-    <aside className={cn("fixed inset-y-0 left-0 z-40 hidden transition-[width] duration-300 lg:block", sidebarCollapsed ? "w-[88px]" : "w-[276px]")}><Sidebar activeSection={activeSection} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((value) => !value)} onNavigate={navigate} /></aside>
-    <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}><SheetContent side="left" className="w-[min(88vw,310px)] p-0"><SheetTitle className="sr-only">Điều hướng chính</SheetTitle><Sidebar activeSection={activeSection} onNavigate={navigate} onClose={() => setMobileSidebarOpen(false)} /></SheetContent></Sheet>
-    <div className={cn("min-h-screen transition-[padding] duration-300", sidebarCollapsed ? "lg:pl-[88px]" : "lg:pl-[276px]")}>
+    {currentRole !== "guest" && (
+      <>
+        <aside className={cn("fixed inset-y-0 left-0 z-40 hidden transition-[width] duration-300 lg:block", sidebarCollapsed ? "w-[88px]" : "w-[276px]")}><Sidebar activeSection={activeSection} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((value) => !value)} onNavigate={navigate} /></aside>
+        <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}><SheetContent side="left" className="w-[min(88vw,310px)] p-0"><SheetTitle className="sr-only">Điều hướng chính</SheetTitle><Sidebar activeSection={activeSection} onNavigate={navigate} onClose={() => setMobileSidebarOpen(false)} /></SheetContent></Sheet>
+      </>
+    )}
+    <div className={cn("min-h-screen transition-[padding] duration-300", currentRole !== "guest" ? (sidebarCollapsed ? "lg:pl-[88px]" : "lg:pl-[276px]") : "")}>
       <Header activeSection={activeSection} familyName={familyName} members={visibleMembers} searchQuery={searchQuery} onSearchChange={setSearchQuery} onSelectMember={selectMember} onFamilyChange={setFamilyName} onMenuClick={() => setMobileSidebarOpen(true)} onNavigate={navigate} />
       <main className="mx-auto max-w-[1680px] px-4 py-6 sm:px-6 sm:py-8 xl:px-8">
         {activeSection === "tree" && (membersLoading ? <SectionLoading /> : membersError ? <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-sm text-red-700">Không tải được dữ liệu thành viên. <Button variant="outline" size="sm" onClick={() => void refetchMembers()}>Thử lại</Button></div> : <FamilyTree members={visibleMembers} searchQuery={searchQuery} onSelectMember={selectMember} />)}

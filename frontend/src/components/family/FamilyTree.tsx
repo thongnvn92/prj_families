@@ -11,6 +11,7 @@ import { normalizeText } from "../../lib/utils";
 import { useAuth } from "../../context/AuthContext";
 import { filterMembersForRole } from "../../lib/rbacFilter";
 import { CalendarIcon, GenerationView, MetricCard, RootMember, TreeCanvas } from "./TreeCanvas";
+import { GuestModeBanner } from "../common/GuestModeBanner";
 
 interface Props { members: FamilyMember[]; searchQuery: string; onSelectMember: (member: FamilyMember) => void; }
 export function FamilyTree({ members: sourceMembers, searchQuery, onSelectMember }: Props) {
@@ -30,7 +31,14 @@ export function FamilyTree({ members: sourceMembers, searchQuery, onSelectMember
   const count = members.filter((member) => (showDeceased || member.isAlive) && matches(member)).length;
   if (!root) return <div className="flex min-h-[420px] flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 bg-stone-50/60 px-6 text-center" role="status"><h2 className="font-display text-xl font-semibold text-stone-800">Chưa có dữ liệu cây gia phả</h2><p className="mt-2 max-w-md text-sm text-stone-500">Hãy thử tải lại dữ liệu. Nếu tài khoản chưa có quyền xem nhánh này, bạn có thể chỉ thấy phần dữ liệu công khai.</p></div>;
   return <div className="space-y-5">
-    {currentRole === "guest" && <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4"><span className="text-lg">◈</span><div><p className="text-sm font-semibold text-amber-800">Chế độ khách đang hoạt động</p><p className="mt-1 text-xs leading-5 text-amber-700">Cây chỉ hiển thị tên, đời thứ, năm sinh/mất và quan hệ công khai. Số điện thoại, địa chỉ, mộ phần và bản đồ đã được bảo vệ.</p></div><Badge variant="outline" className="ml-auto shrink-0 border-amber-200 bg-white text-amber-700">Guest</Badge></div>}
+    {currentRole === "guest" && (
+      <GuestModeBanner
+        storageKey="guest-banner-tree"
+        title="Chế độ khách đang hoạt động"
+        description="Cây chỉ hiển thị tên, đời thứ, năm sinh/mất và quan hệ công khai. Số điện thoại, địa chỉ, mộ phần và bản đồ đã được bảo vệ."
+        icon={<span className="text-lg">◈</span>}
+      />
+    )}
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <MetricCard icon={<UsersRound className="size-5" />} value={members.length} label="Thành viên" note={currentRole === "guest" ? "Dữ liệu công khai" : `${members.filter((member) => member.isAlive).length} đang sống`} tone="wine" />
       <MetricCard icon={<Sparkles className="size-5" />} value={Math.max(0, ...members.map((member) => member.generation))} label="Thế hệ" note="Từ Thủy Tổ đến thế hệ thứ 5" tone="gold" />
