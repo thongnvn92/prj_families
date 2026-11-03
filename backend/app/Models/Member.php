@@ -6,6 +6,7 @@ use App\Enums\MemberGender;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -49,6 +50,11 @@ class Member extends Model
     public function spouse(): BelongsTo
     {
         return $this->belongsTo(self::class, 'spouse_id');
+    }
+
+    public function spouses(): BelongsToMany
+    {
+        return $this->belongsToMany(self::class, 'member_spouses', 'member_id', 'spouse_id');
     }
 
     public function user(): HasOne

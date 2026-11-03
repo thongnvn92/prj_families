@@ -85,6 +85,25 @@ describe("UT-MEMBER-FORM – Normal / Happy Path", () => {
     expect(await screen.findByText("Đời 1")).toBeInTheDocument();
   });
 
+  it("cho phép thêm nhiều phối ngẫu", async () => {
+    const user = userEvent.setup();
+    renderModal();
+
+    await user.click(screen.getByRole("tab", { name: "Quan hệ" }));
+    await user.click(screen.getByRole("button", { name: /Thêm phối ngẫu/ }));
+    await user.click(screen.getAllByRole("combobox")[2]);
+    await user.click(await screen.findByRole("option", { name: /Nguyễn Văn An/ }));
+    await user.click(screen.getByRole("button", { name: /Thêm phối ngẫu/ }));
+    await user.click(screen.getAllByRole("combobox")[3]);
+    await user.click(await screen.findByRole("option", { name: /Nguyễn Văn Minh/ }));
+    await user.click(screen.getByRole("tab", { name: "Cơ bản" }));
+    await user.type(screen.getByLabelText("Họ và tên *"), "Nguyễn Văn Nhiều Phối Ngẫu");
+    await user.click(screen.getByRole("button", { name: /Thêm thành viên/ }));
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect((onSubmit.mock.calls[0][0] as MemberFormData).spouse_ids).toEqual(["2", "1"]);
+  });
+
   it("tab Âm - Dương chỉ nhận ngày âm trong khoảng 1-30 / 1-12", () => {
     renderModal();
 

@@ -29,6 +29,7 @@ export interface FamilyMember {
   fatherId?: string;
   motherId?: string;
   spouseId?: string;
+  spouseIds?: string[];
   phone: string;
   birthplace: string;
   address: string;
@@ -38,6 +39,7 @@ export interface FamilyMember {
   homeMapUrl?: string;
   avatarUrl?: string;
   avatarTone: AvatarTone;
+  email?: string;
 }
 
 const northVietnamMap =
@@ -68,122 +70,234 @@ function makeMember(member: Partial<FamilyMember> & Pick<FamilyMember, "id" | "n
 }
 
 export const familyMembers: FamilyMember[] = [
-  makeMember({
-    id: "minh", name: "Nguyễn Văn Minh", initials: "NM", generation: 1, birthYear: 1898, deathYear: 1974,
-    isAlive: false, birthLunar: "03 / 06 / 1898 âm lịch", deathLunar: "19 / 08 / 1974 âm lịch", spouseId: "sau",
-    role: "Thủy Tổ", phone: "090 210 1898", birthplace: "Thôn Trung, Bắc Ninh", address: "Khu di tích gia tộc, Bắc Ninh", avatarTone: "wine",
-    bio: "Ông là vị tổ đầu tiên được ghi nhận trong nhánh Chi 3 của Họ Nguyễn. Ông đã gìn giữ gia phạn, đứng ra bảo vệ và truyền tại cho các thế hệ sau.",
-  }),
-  makeMember({
-    id: "sau", name: "Nguyễn Thị Sáu", initials: "NS", gender: "female", generation: 1, birthYear: 1902, deathYear: 1985,
-    isAlive: false, birthLunar: "16 / 09 / 1902 âm lịch", deathLunar: "07 / 10 / 1985 âm lịch", spouseId: "minh", role: "Bà nội",
-    phone: "Liên hệ qua Trưởng tộc", birthplace: "Bắc Ninh", address: "Khu di tích gia tộc, Bắc Ninh", avatarTone: "slate",
-    bio: "Bà Sáu được nhắc đến với sự nhẫn nại và sự chăm sóc đối với cả dòng họ trong những năm đầu thế kỷ XX.",
-  }),
+
+
   makeMember({
     id: "van-thanh", name: "Nguyễn Văn Thành", initials: "NT", generation: 2, birthYear: 1925, deathYear: 2001,
-    isAlive: false, birthLunar: "11 / 01 / 1925 âm lịch", deathLunar: "23 / 12 / 2001 âm lịch", fatherId: "minh", motherId: "sau", spouseId: "nga",
+    isAlive: false, birthLunar: "11 / 01 / 1925 âm lịch", deathLunar: "23 / 12 / 2001 âm lịch", fatherId: "r-rinh", motherId: "r-quet", spouseId: "r-xuan-lieu",
     role: "Cụ", phone: "Liên hệ qua Trưởng tộc", avatarTone: "amber", bio: "Cụ Thành gắn bó với ruộng đồng và là người ghi nhớ nhiều thế hệ trong nhánh Chi 3.",
+    email: "thanhnv@nguyenvan.naol.cloud",
   }),
-  makeMember({
-    id: "nga", name: "Nguyễn Thị Nga", initials: "NN", gender: "female", generation: 2, birthYear: 1930, deathYear: 2008,
-    isAlive: false, birthLunar: "21 / 04 / 1930 âm lịch", deathLunar: "05 / 11 / 2008 âm lịch", spouseId: "van-thanh", role: "Mẹ",
-    phone: "Liên hệ qua Trưởng tộc", avatarTone: "sage", bio: "Bà Nga là người nội trưởng đầy cảm xúc, nổi tiếng với những mâm cúng đầy đủ vẻ của dòng họ.",
-  }),
-  makeMember({
-    id: "duc", name: "Nguyễn Văn Đức", initials: "NĐ", generation: 2, birthYear: 1948, birthLunar: "08 / 02 / 1948 âm lịch",
-    fatherId: "minh", motherId: "sau", spouseId: "hoa", role: "Trưởng tộc", phone: "090 330 1948", address: "Hoàng Kiếm, Hà Nội",
-    avatarTone: "wine", bio: "Ông Đức là trưởng tộc đương thời, phụ trách đồng đạo, tổ chức giỗ cháp và bảo trì gia phả số của Chi 3.",
-  }),
-  makeMember({
-    id: "hoa", name: "Nguyễn Thị Hoa", initials: "NH", gender: "female", generation: 2, birthYear: 1951, birthLunar: "27 / 05 / 1951 âm lịch",
-    spouseId: "duc", role: "Phu nhân", phone: "091 330 1951", address: "Hoàng Kiếm, Hà Nội", avatarTone: "amber",
-    bio: "Bà Hoa chăm lo nấu ăn cùng ban tổ chức, hỗ trợ các chương trình văn hóa và sinh hoạt gia đình của Chi 3.",
-  }),
-  makeMember({
-    id: "dung", name: "Nguyễn Văn Dũng", initials: "ND", generation: 2, birthYear: 1942, deathYear: 2010,
-    isAlive: false, birthLunar: "09 / 08 / 1942 âm lịch", deathLunar: "29 / 03 / 2010 âm lịch", fatherId: "minh", motherId: "sau", spouseId: "mai",
-    role: "Cụ", phone: "Liên hệ qua Trưởng tộc", avatarTone: "slate", bio: "Cụ Dũng từng giữ vai trò thủ bổ trong nhánh họ trước khi sinh hoạt gia phả được số hóa.",
-  }),
-  makeMember({
-    id: "mai", name: "Nguyễn Thị Mai", initials: "NM", gender: "female", generation: 2, birthYear: 1946, deathYear: 2016,
-    isAlive: false, birthLunar: "02 / 11 / 1946 âm lịch", deathLunar: "16 / 04 / 2016 âm lịch", spouseId: "dung", role: "Thím",
-    phone: "Liên hệ qua Trưởng tộc", avatarTone: "sage", bio: "Thím Mai luôn nhắc các cháu về cội nguồn và giữ gìn nếp nhà trong những ngày đầu xuân.",
-  }),
-  makeMember({
-    id: "hien", name: "Nguyễn Văn Hiền", initials: "NH", generation: 3, birthYear: 1950, birthLunar: "04 / 03 / 1950 âm lịch",
-    fatherId: "van-thanh", motherId: "nga", spouseId: "lien", role: "Trưởng chi", phone: "090 520 1950", address: "Bắc Ninh", avatarTone: "amber",
-    bio: "Ông Hiền phụ trách nhánh Bắc Ninh, đồng hành cùng các anh em trong việc số hóa hình ảnh và sổ bội tưởng.",
-  }),
-  makeMember({
-    id: "lien", name: "Nguyễn Thị Liên", initials: "NL", gender: "female", generation: 3, birthYear: 1954, birthLunar: "19 / 06 / 1954 âm lịch",
-    spouseId: "hien", role: "Dâu", phone: "091 520 1954", address: "Bắc Ninh", avatarTone: "sage",
-    bio: "Bà Liên nổi tiếng hiền lành, luôn sẵn lòng hỗ trợ công tác gia phả và việc gia đình của nhánh Chi 3.",
-  }),
-  makeMember({
-    id: "thao", name: "Nguyễn Thị Thảo", initials: "NT", gender: "female", generation: 3, birthYear: 1956, birthLunar: "12 / 09 / 1956 âm lịch",
-    fatherId: "van-thanh", motherId: "nga", role: "Dâu", phone: "090 610 1956", address: "Bắc Ninh", avatarTone: "slate",
-    bio: "Chị Thảo là người đầu tiên trong thế hệ thứ ba gia nhập nhóm dùng chung để đóng góp dữ liệu gia phả.",
-  }),
-  makeMember({
-    id: "hung", name: "Nguyễn Văn Hùng", initials: "NH", generation: 3, birthYear: 1971, birthLunar: "25 / 01 / 1971 âm lịch",
-    fatherId: "duc", motherId: "hoa", spouseId: "huyen", role: "Trưởng chi", phone: "090 720 1971", address: "Hoàng Kiếm, Hà Nội", avatarTone: "wine",
-    bio: "Anh Hùng kết nối thế hệ trẻ với truyền thống gia đình, đồng thời phụ trách gia phả số nhánh Hà Nội.",
-  }),
-  makeMember({
-    id: "huyen", name: "Nguyễn Thị Huyền", initials: "NH", gender: "female", generation: 3, birthYear: 1975, birthLunar: "08 / 04 / 1975 âm lịch",
-    spouseId: "hung", role: "Dâu", phone: "091 720 1975", address: "Hoàng Kiếm, Hà Nội", avatarTone: "amber",
-    bio: "Chị Huyền là người đồng hành trong các chương trình sinh hoạt văn hóa của Họ Nguyễn Chi 3.",
-  }),
-  makeMember({
-    id: "lan", name: "Nguyễn Thị Lan", initials: "NL", gender: "female", generation: 3, birthYear: 1978, birthLunar: "30 / 07 / 1978 âm lịch",
-    fatherId: "duc", motherId: "hoa", role: "Dâu", phone: "090 820 1978", address: "Hà Nội", avatarTone: "sage",
-    bio: "Chị Lan phụ trách chuyên mục album gia đình, giữ lại nhiều tấm ảnh quý của các thế hệ trước.",
-  }),
-  makeMember({
-    id: "tuan", name: "Nguyễn Văn Tuấn", initials: "NT", generation: 3, birthYear: 1969, birthLunar: "17 / 11 / 1969 âm lịch",
-    fatherId: "dung", motherId: "mai", spouseId: "thanh", role: "Trưởng chi", phone: "090 920 1969", address: "Hà Nội", avatarTone: "slate",
-    bio: "Anh Tuấn thường xuyên tổ chức sinh hoạt cho các cháu nhỏ và hỗ trợ công tác nhắc ngày giỗ trong nhánh.",
-  }),
-  makeMember({
-    id: "thanh", name: "Nguyễn Thị Thanh", initials: "NT", gender: "female", generation: 3, birthYear: 1972, birthLunar: "06 / 02 / 1972 âm lịch",
-    spouseId: "tuan", role: "Dâu", phone: "091 920 1972", address: "Hà Nội", avatarTone: "wine",
-    bio: "Chị Thanh có kinh nghiệm trong việc chuẩn bị nghi lễ, tụng kinh và hỗ trợ việc trang trí mâm cúng.",
-  }),
-  makeMember({
-    id: "bao", name: "Nguyễn Gia Bảo", initials: "GB", generation: 4, birthYear: 1980, birthLunar: "22 / 08 / 1980 âm lịch",
-    fatherId: "hien", motherId: "lien", role: "Cháu nội", phone: "091 080 1980", address: "Bắc Ninh", avatarTone: "amber",
-    bio: "Bảo là thế hệ thứ tư tiếp nối truyền thống, đồng thời là người thử nghiệm các tính năng trên Gia Phả Online.",
-  }),
-  makeMember({
-    id: "khai", name: "Nguyễn Gia Khải", initials: "GK", generation: 4, birthYear: 1983, birthLunar: "14 / 10 / 1983 âm lịch",
-    fatherId: "hung", motherId: "huyen", role: "Cháu nội", phone: "091 180 1983", address: "Hà Nội", avatarTone: "sage",
-    bio: "Khải đam mê công nghệ và đóng góp ý tưởng cho việc kết nối các chi nhánh trong gia tộc.",
-  }),
-  makeMember({
-    id: "ngoc", name: "Nguyễn Gia Ngọc", initials: "GN", gender: "female", generation: 4, birthYear: 1990, birthLunar: "03 / 12 / 1990 âm lịch",
-    fatherId: "hung", motherId: "huyen", role: "Cháu nội", phone: "091 280 1990", address: "Hà Nội", avatarTone: "slate",
-    bio: "Ngọc là một trong những thành viên thế hệ trẻ tích cực đóng góp ảnh và kể chuyện về dòng họ.",
-  }),
-  makeMember({
-    id: "anh", name: "Nguyễn Gia Anh", initials: "GA", generation: 4, birthYear: 1998, birthLunar: "15 / 05 / 1998 âm lịch",
-    fatherId: "tuan", motherId: "thanh", role: "Cháu nội", phone: "091 380 1998", address: "Hà Nội", avatarTone: "wine",
-    bio: "Anh họ trẻ của nhánh Hà Nội, luôn sẵn sàng hỗ trợ công việc ban quản trị gia phả.",
-  }),
-  makeMember({
-    id: "huy", name: "Nguyễn Gia Huy", initials: "GH", generation: 5, birthYear: 2012, birthLunar: "28 / 03 / 2012 âm lịch",
-    fatherId: "bao", role: "Cháu kế tục", phone: "Chưa cập nhật", address: "Bắc Ninh", avatarTone: "amber",
-    bio: "Huy là thành viên nhỏ nhất trong bản gia phả hiện tại, được các cụ nhỏ yêu quý và nhắc nhở về cội nguồn.",
-  }),
-  makeMember({
-    id: "nhi", name: "Nguyễn Gia Nhi", initials: "GN", gender: "female", generation: 5, birthYear: 2015, birthLunar: "09 / 06 / 2015 âm lịch",
-    fatherId: "khai", role: "Cháu kế tục", phone: "Chưa cập nhật", address: "Hà Nội", avatarTone: "sage",
-    bio: "Nhi là thế hệ thứ năm, thế hệ đang lớn lên cùng nền tảng số của gia tộc.",
-  }),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   makeMember({
     id: "an", name: "Nguyễn Gia An", initials: "GA", gender: "female", generation: 5, birthYear: 2021, birthLunar: "21 / 09 / 2021 âm lịch",
     fatherId: "anh", role: "Cháu kế tục", phone: "Chưa cập nhật", address: "Hà Nội", avatarTone: "slate",
     bio: "An thuộc thế hệ thứ năm, được gia đình yêu thương và ghi nhận trong từng mốc trưởng thành.",
+    email: "anng@nguyenvan.naol.cloud",
+  }),
+
+  makeMember({
+    id: "r-rinh", name: "Nguyễn Văn Rinh", initials: "NR", generation: 1, birthYear: 1890, deathYear: 1965,
+    isAlive: false, role: "Thủy Tổ", avatarTone: "wine", email: "rinhnv@nguyenvan.naol.cloud",
+    bio: "Tổ đầu tiên hệ Nguyễn Văn Rinh — Bà Trần Thị Quệt.",
+  }),
+  makeMember({
+    id: "r-quet", name: "Trần Thị Quệt", initials: "TQ", gender: "female", generation: 1, birthYear: 1895, deathYear: 1970,
+    isAlive: false, role: "Bà nội", avatarTone: "slate", email: "quettt@nguyenvan.naol.cloud",
+    bio: "Vợ của tổ Nguyễn Văn Rinh.",
+  }),
+  makeMember({
+    id: "r-dung", name: "Nguyễn Thị Dung", initials: "ND", gender: "female", generation: 2, birthYear: 1915,
+    fatherId: "r-rinh", motherId: "r-quet", spouseId: "r-hoang", role: "Con", avatarTone: "sage", email: "dungnt@nguyenvan.naol.cloud",
+    bio: "Con của tổ Rinh — Quệt, vợ của ông Hoàng.",
+  }),
+  makeMember({
+    id: "r-hoang", name: "Ông Hoàng", initials: "HO", generation: 2, birthYear: 1912,
+    spouseId: "r-dung", role: "Con rể", avatarTone: "amber", email: "hoangh@nguyenvan.naol.cloud",
+    bio: "Con rể của bà Dung.",
+  }),
+  makeMember({
+    id: "r-huy", name: "Ông Huy", initials: "HU", generation: 3, birthYear: 1940,
+    fatherId: "r-dung", motherId: "r-hoang", role: "Cháu", avatarTone: "amber", email: "huyh@nguyenvan.naol.cloud",
+    bio: "Cháu của bà Dung — ông Hoàng.",
+  }),
+  makeMember({
+    id: "r-han", name: "Bà Hân", initials: "HA", gender: "female", generation: 3, birthYear: 1942,
+    fatherId: "r-dung", motherId: "r-hoang", role: "Cháu", avatarTone: "sage", email: "hanh@nguyenvan.naol.cloud",
+    bio: "Cháu của bà Dung — ông Hoàng.",
+  }),
+  makeMember({
+    id: "r-sinh", name: "Nguyễn Văn Sinh", initials: "SV", generation: 2, birthYear: 1918,
+    fatherId: "r-rinh", motherId: "r-quet", spouseId: "r-cam", role: "Con", avatarTone: "amber", email: "sinhnv@nguyenvan.naol.cloud",
+    bio: "Con của tổ Rinh — Quệt, chồng bà Cầm.",
+  }),
+  makeMember({
+    id: "r-cam", name: "Bà Cầm", initials: "CM", gender: "female", generation: 2, birthYear: 1920,
+    spouseId: "r-sinh", role: "Con dâu", avatarTone: "slate", email: "camc@nguyenvan.naol.cloud",
+    bio: "Con dâu của ông Sinh.",
+  }),
+  makeMember({
+    id: "r-dongni", name: "Ông Đông ni", initials: "DN", generation: 3, birthYear: 1945,
+    fatherId: "r-sinh", motherId: "r-cam", role: "Cháu", avatarTone: "amber", email: "nid@nguyenvan.naol.cloud",
+    bio: "Cháu của ông Sinh — bà Cầm.",
+  }),
+  makeMember({
+    id: "r-yienni", name: "Ông Yien ni", initials: "YN", generation: 3, birthYear: 1947,
+    fatherId: "r-sinh", motherId: "r-cam", role: "Cháu", avatarTone: "amber", email: "niy@nguyenvan.naol.cloud",
+    bio: "Cháu của ông Sinh — bà Cầm.",
+  }),
+  makeMember({
+    id: "r-toan", name: "Nguyễn Văn Toàn", initials: "TT", generation: 2, birthYear: 1922,
+    fatherId: "r-rinh", motherId: "r-quet", spouseId: "r-kimyen", role: "Con", avatarTone: "amber", email: "toannv@nguyenvan.naol.cloud",
+    bio: "Con của tổ Rinh — Quệt, chồng bà Kim Yến.",
+  }),
+  makeMember({
+    id: "r-kimyen", name: "Bà Nguyễn Thị Kim Yến", initials: "KY", gender: "female", generation: 2, birthYear: 1925,
+    spouseId: "r-toan", role: "Con dâu", avatarTone: "wine", email: "yennt@nguyenvan.naol.cloud",
+    bio: "Con dâu của ông Toàn.",
+  }),
+  makeMember({
+    id: "r-an-thu", name: "Bà Nguyễn Anh Thư", initials: "AT", gender: "female", generation: 3, birthYear: 1948,
+    fatherId: "r-toan", motherId: "r-kimyen", spouseId: "r-thien", role: "Cháu", avatarTone: "sage", email: "thuna@nguyenvan.naol.cloud",
+    bio: "Cháu của ông Toàn — bà Kim Yến, vợ Nguyễn Hữu Thiên.",
+  }),
+  makeMember({
+    id: "r-thien", name: "Nguyễn Hữu Thiên", initials: "TH", generation: 3, birthYear: 1945,
+    spouseId: "r-an-thu", role: "Con rể", avatarTone: "wine", email: "thiennh@nguyenvan.naol.cloud",
+    bio: "Con rể của bà Anh Thư.",
+  }),
+  makeMember({
+    id: "r-tinh-giang", name: "Bà Nguyễn Tịnh Giang", initials: "TG", gender: "female", generation: 3, birthYear: 1950,
+    fatherId: "r-toan", motherId: "r-kimyen", spouseId: "r-thuc", role: "Cháu", avatarTone: "sage", email: "giangnt@nguyenvan.naol.cloud",
+    bio: "Cháu của ông Toàn — bà Kim Yến, vợ Nguyễn Thục.",
+  }),
+  makeMember({
+    id: "r-thuc", name: "Nguyễn Thục", initials: "TC", generation: 3, birthYear: 1948,
+    spouseId: "r-tinh-giang", role: "Con rể", avatarTone: "wine", email: "thucn@nguyenvan.naol.cloud",
+    bio: "Con rể của bà Tịnh Giang.",
+  }),
+  makeMember({
+    id: "r-sky", name: "Ông Sky", initials: "SK", generation: 4, birthYear: 1970,
+    fatherId: "r-an-thu", motherId: "r-thien", role: "Cụnh cháu", avatarTone: "amber", email: "skys@nguyenvan.naol.cloud",
+    bio: "Cụnh cháu của bà Anh Thư — Nguyễn Hữu Thiên.",
+  }),
+  makeMember({
+    id: "r-candy", name: "Bà Candy", initials: "CD", gender: "female", generation: 4, birthYear: 1972,
+    fatherId: "r-an-thu", motherId: "r-thien", role: "Cụnh cháu", avatarTone: "sage", email: "candyc@nguyenvan.naol.cloud",
+    bio: "Cụnh cháu của bà Anh Thư — Nguyễn Hữu Thiên.",
+  }),
+  makeMember({
+    id: "r-bingo", name: "Ông Bí Ngô", initials: "BN", generation: 4, birthYear: 1974,
+    fatherId: "r-tinh-giang", motherId: "r-thuc", role: "Cụnh cháu", avatarTone: "amber", email: "ngob@nguyenvan.naol.cloud",
+    bio: "Cụnh cháu của bà Tịnh Giang — Nguyễn Thục.",
+  }),
+  makeMember({
+    id: "r-oanh", name: "Bà Nguyễn Thị Oanh", initials: "OA", gender: "female", generation: 2, birthYear: 1928,
+    fatherId: "r-rinh", motherId: "r-quet", spouseId: "r-bon", role: "Con", avatarTone: "sage", email: "oanhnt@nguyenvan.naol.cloud",
+    bio: "Con của tổ Rinh — Quệt, vợ ông Bốn (đã mất).",
+  }),
+  makeMember({
+    id: "r-bon", name: "Ông Bốn", initials: "BO", generation: 2, birthYear: 1925, deathYear: 1990,
+    isAlive: false, spouseId: "r-oanh", role: "Con rể (đã mất)", avatarTone: "slate", email: "bonb@nguyenvan.naol.cloud",
+    bio: "Con rể của bà Oanh, đã qua đời.",
+  }),
+  makeMember({
+    id: "r-nhut", name: "Nguyễn Minh Nhựt", initials: "NH", generation: 3, birthYear: 1952,
+    fatherId: "r-oanh", motherId: "r-bon", spouseId: "r-yen", role: "Cháu", avatarTone: "amber", email: "nhutnm@nguyenvan.naol.cloud",
+    bio: "Cháu của bà Oanh — ông Bốn, vợ Ngô Thị Yến.",
+  }),
+  makeMember({
+    id: "r-yen", name: "Ngô Thị Yến", initials: "YE", gender: "female", generation: 3, birthYear: 1955,
+    spouseId: "r-nhut", role: "Con dâu", avatarTone: "sage", email: "yennt2@nguyenvan.naol.cloud",
+    bio: "Con dâu của Nguyễn Minh Nhựt.",
+  }),
+  makeMember({
+    id: "r-bong", name: "Bà bống", initials: "BG", gender: "female", generation: 4, birthYear: 1978,
+    fatherId: "r-nhut", motherId: "r-yen", role: "Cụnh cháu", avatarTone: "sage", email: "bongb@nguyenvan.naol.cloud",
+    bio: "Cụnh cháu của Minh Nhựt — Ngô Thị Yến.",
+  }),
+  makeMember({
+    id: "r-anh2", name: "Nguyễn Minh Ánh", initials: "AH", generation: 3, birthYear: 1950,
+    fatherId: "r-oanh", motherId: "r-bon", spouseId: "r-diem", role: "Cháu", avatarTone: "amber", email: "anhnm@nguyenvan.naol.cloud",
+    bio: "Cháu của bà Oanh — ông Bốn, vợ Nguyễn Thị Diễm.",
+  }),
+  makeMember({
+    id: "r-diem", name: "Nguyễn Thị Diễm", initials: "DM", gender: "female", generation: 3, birthYear: 1953,
+    spouseId: "r-anh2", role: "Con dâu", avatarTone: "sage", email: "diemnt@nguyenvan.naol.cloud",
+    bio: "Con dâu của Nguyễn Minh Ánh.",
+  }),
+  makeMember({
+    id: "r-mia", name: "Bà Mía", initials: "MI", gender: "female", generation: 4, birthYear: 1980,
+    fatherId: "r-anh2", motherId: "r-diem", role: "Cụnh cháu", avatarTone: "sage", email: "miam@nguyenvan.naol.cloud",
+    bio: "Cụnh cháu của Minh Ánh — Nguyễn Thị Diễm.",
+  }),
+  makeMember({
+    id: "r-xuan-lieu", name: "Bà Đoàn Thị Xuân Liễu", initials: "XL", gender: "female", generation: 2, birthYear: 1930,
+    spouseId: "van-thanh", role: "Con dâu", avatarTone: "wine", email: "lieudt@nguyenvan.naol.cloud",
+    bio: "Con dâu của ông Nguyễn Văn Thành.",
+  }),
+  makeMember({
+    id: "r-nguyen-thong", name: "Ông Nguyễn Văn Nguyên Thông", initials: "NT", generation: 3, birthYear: 1955,
+    fatherId: "van-thanh", motherId: "r-xuan-lieu", spouseId: "r-chau-loan", role: "Cháu", avatarTone: "amber", email: "thongnv@nguyenvan.naol.cloud",
+    bio: "Cháu của ông Thành — bà Xuân Liễu, vợ Huỳnh Thị Châu Loan.",
+  }),
+  makeMember({
+    id: "r-chau-loan", name: "Bà Huỳnh Thị Châu Loan", initials: "CL", gender: "female", generation: 3, birthYear: 1958,
+    spouseId: "r-nguyen-thong", role: "Con dâu", avatarTone: "sage", email: "loanht@nguyenvan.naol.cloud",
+    bio: "Con dâu của ông Nguyên Thông.",
+  }),
+  makeMember({
+    id: "r-minh-tri", name: "Ông Nguyễn Văn Minh Trí", initials: "MT", generation: 4, birthYear: 1982,
+    fatherId: "r-nguyen-thong", motherId: "r-chau-loan", role: "Cụnh cháu", avatarTone: "amber", email: "trinv@nguyenvan.naol.cloud",
+    bio: "Cụnh cháu của ông Nguyên Thông — bà Châu Loan.",
+  }),
+  makeMember({
+    id: "r-kieu-trinh", name: "Bà Nguyễn Thị Kiều Trinh", initials: "KT", gender: "female", generation: 3, birthYear: 1957,
+    fatherId: "van-thanh", motherId: "r-xuan-lieu", spouseId: "r-hieu", role: "Cháu", avatarTone: "sage", email: "trinhnt@nguyenvan.naol.cloud",
+    bio: "Cháu của ông Thành — bà Xuân Liễu, vợ Huỳnh Văn Hiếu.",
+  }),
+  makeMember({
+    id: "r-hieu", name: "Huỳnh Văn Hiếu", initials: "HE", generation: 3, birthYear: 1955,
+    spouseId: "r-kieu-trinh", role: "Con rể", avatarTone: "wine", email: "hieuhv@nguyenvan.naol.cloud",
+    bio: "Con rể của bà Kiều Trinh.",
+  }),
+  makeMember({
+    id: "r-hung-anh", name: "Ông Huỳnh Nguyễn Hùng Anh", initials: "HA", generation: 4, birthYear: 1985,
+    fatherId: "r-kieu-trinh", motherId: "r-hieu", role: "Cụnh cháu", avatarTone: "amber", email: "anhhn@nguyenvan.naol.cloud",
+    bio: "Cụnh cháu của bà Kiều Trinh — Huỳnh Văn Hiếu.",
+  }),
+  makeMember({
+    id: "r-cuc", name: "Bà Nguyễn Thị Cúc", initials: "CC", gender: "female", generation: 2, birthYear: 1932,
+    fatherId: "r-rinh", motherId: "r-quet", spouseId: "r-tin", role: "Con", avatarTone: "sage", email: "cucnt@nguyenvan.naol.cloud",
+    bio: "Con của tổ Rinh — Quệt, vợ ông Ngô Đức Tín.",
+  }),
+  makeMember({
+    id: "r-tin", name: "Ông Ngô Đức Tín", initials: "TN", generation: 2, birthYear: 1930,
+    spouseId: "r-cuc", role: "Con rể", avatarTone: "slate", email: "tinnd@nguyenvan.naol.cloud",
+    bio: "Con rể của bà Cúc.",
+  }),
+  makeMember({
+    id: "r-thinh", name: "Ông Ngô Đức Thịnh", initials: "TI", generation: 3, birthYear: 1958,
+    fatherId: "r-cuc", motherId: "r-tin", role: "Cháu", avatarTone: "amber", email: "thinhnd@nguyenvan.naol.cloud",
+    bio: "Cháu của bà Cúc — ông Ngô Đức Tín.",
+  }),
+  makeMember({
+    id: "r-thao", name: "Ông Nguyễn Văn Thảo", initials: "TA", generation: 2, birthYear: 1935, deathYear: 1980,
+    isAlive: false, fatherId: "r-rinh", motherId: "r-quet", role: "Con (đã mất)", avatarTone: "slate", email: "thaonv@nguyenvan.naol.cloud",
+    bio: "Con của tổ Rinh — Quệt, đã qua đời.",
+  }),
+  makeMember({
+    id: "r-thuan", name: "Ông Nguyễn Văn Thuận", initials: "TU", generation: 2, birthYear: 1938, deathYear: 1985,
+    isAlive: false, fatherId: "r-rinh", motherId: "r-quet", role: "Con (đã mất)", avatarTone: "slate", email: "thuannv@nguyenvan.naol.cloud",
+    bio: "Con của tổ Rinh — Quệt, đã qua đời.",
   }),
 ];
 

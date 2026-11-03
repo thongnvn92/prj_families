@@ -60,9 +60,9 @@ php artisan migrate --seed
 Seeder tạo dữ liệu kiểm thử gồm:
 
 - 1 family: Họ Nguyễn — Chi 3.
-- 23 thành viên, 5 thế hệ.
+- 41 thành viên, 4 thế hệ.
 - 5 user mẫu theo role `admin`, `mod`, `editor`, `member`, `guest`.
-- 6 sự kiện âm lịch.
+- 3 sự kiện âm lịch mẫu.
 - 7 bài văn khấn.
 - Personal Access Client và Password Grant Client.
 
@@ -70,10 +70,10 @@ Tài khoản seed dùng mật khẩu `password` (chỉ dùng local/dev):
 
 | Email | Role |
 |---|---|
-| `admin@gia-pha.local` | Admin |
-| `mod@gia-pha.local` | Mod |
-| `editor@gia-pha.local` | Editor |
-| `member@gia-pha.local` | Member |
+| `nvthanhhoian@gmail.com` | Admin |
+| `dungnt@nguyenvan.naol.cloud` | Mod |
+| `toannv@nguyenvan.naol.cloud` | Editor |
+| `thanhnv@nguyenvan.naol.cloud` | Member |
 | `guest@gia-pha.local` | Guest |
 
 ## Chạy local
@@ -139,7 +139,7 @@ curl http://127.0.0.1:8080/up
 curl -X POST http://127.0.0.1:8080/api/v1/auth/login \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@gia-pha.local","password":"password","device_name":"local"}'
+  -d '{"email":"nvthanhhoian@gmail.com","password":"password","device_name":"local"}'
 ```
 
 Gửi token ở request tiếp theo:

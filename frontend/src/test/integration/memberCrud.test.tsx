@@ -29,14 +29,14 @@ function apiMember(id: number, name: string): Record<string, unknown> {
     id, family_id: 1, full_name: name, nickname: null, gender: "male", generation: 1,
     order_in_family: 1, is_alive: true, birth_date_solar: null, death_date_solar: null,
     burial_place: null, burial_map_url: null, home_map_url: null, bio: null, avatar_url: null,
-    phone: "0912345678", address: "Bắc Ninh", father_id: null, mother_id: null, spouse_id: null,
+    phone: "0912345678", address: "Bắc Ninh", father_id: null, mother_id: null, spouse_id: null, spouse_ids: [],
     created_at: "2026-01-01T00:00:00+07:00",
   };
 }
 
 function blankForm(name: string): MemberFormData {
   return {
-    full_name: name, nickname: "", gender: "male", father_id: null, mother_id: null, spouse_id: null,
+    full_name: name, nickname: "", gender: "male", father_id: null, mother_id: null, spouse_id: null, spouse_ids: [],
     generation: 1, order_in_family: 1, is_alive: true, birth_date_solar: "",
     birth_day_lunar: null, birth_month_lunar: null, birth_year_lunar: null,
     death_date_solar: "", death_day_lunar: null, death_month_lunar: null, death_year_lunar: null,
@@ -188,4 +188,3 @@ describe("IT-MEMBER-CRUD – Exception Cases", () => {
     expect(await screen.findByText("Không thể lưu thông tin.")).toBeInTheDocument();
   });
 });
-

@@ -34,6 +34,7 @@ class MemberResource extends JsonResource
             'father_name' => $this->whenLoaded('father', fn () => $this->father?->full_name),
             'mother_name' => $this->whenLoaded('mother', fn () => $this->mother?->full_name),
             'spouse_name' => $this->whenLoaded('spouse', fn () => $this->spouse?->full_name),
+            'spouse_ids' => $this->whenLoaded('spouses', fn () => $this->spouses->pluck('id')->values()),
         ];
 
         if ($guest) {

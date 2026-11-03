@@ -181,8 +181,9 @@ Kiểm tra máy chủ còn hoạt động: `curl http://127.0.0.1:8080/up`
 
 Tài khoản mẫu, mật khẩu đều là `password` (**chỉ dùng ở máy cá nhân**):
 
-`admin@gia-pha.local` · `mod@gia-pha.local` · `editor@gia-pha.local` ·
-`member@gia-pha.local` · `guest@gia-pha.local`
+`nvthanhhoian@gmail.com` · `dungnt@nguyenvan.naol.cloud` ·
+`toannv@nguyenvan.naol.cloud` · `thanhnv@nguyenvan.naol.cloud` ·
+`guest@gia-pha.local`
 
 ---
 

@@ -27,6 +27,7 @@ export interface MemberApiRecord {
   father_id?: number | null;
   mother_id?: number | null;
   spouse_id?: number | null;
+  spouse_ids?: number[] | null;
   burial_place?: string | null;
   burial_map_url?: string | null;
   home_map_url?: string | null;
@@ -61,6 +62,7 @@ function avatarTone(generation: number): AvatarTone {
 
 export function memberFromApi(record: MemberApiRecord): FamilyMember {
   const isPublicRecord = !("phone" in record) || !("address" in record) || record.gender === undefined;
+  const spouseIds = record.spouse_ids?.map(String) ?? (record.spouse_id ? [String(record.spouse_id)] : []);
   return {
     id: String(record.id),
     name: record.full_name,
@@ -89,7 +91,8 @@ export function memberFromApi(record: MemberApiRecord): FamilyMember {
     deathYearLunar: record.death_year_lunar ?? undefined,
     fatherId: record.father_id ? String(record.father_id) : undefined,
     motherId: record.mother_id ? String(record.mother_id) : undefined,
-    spouseId: record.spouse_id ? String(record.spouse_id) : undefined,
+    spouseId: spouseIds[0],
+    spouseIds,
     phone: "phone" in record ? record.phone ?? "" : MASKED_VALUE,
     // Quê quán là cột riêng; dữ liệu cũ chỉ có `address` nên fallback cho tương thích.
     birthplace: "birthplace" in record ? record.birthplace?.trim() || record.address?.trim() || "" : MASKED_VALUE,
@@ -114,6 +117,7 @@ export function memberPayload(data: MemberFormData, familyId?: number | null): R
     father_id: numericId(data.father_id),
     mother_id: numericId(data.mother_id),
     spouse_id: numericId(data.spouse_id),
+    spouse_ids: data.spouse_ids.filter(Boolean).map(Number),
     ...(familyId ? { family_id: familyId } : {}),
   };
 }

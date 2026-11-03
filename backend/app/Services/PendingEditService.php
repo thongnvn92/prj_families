@@ -92,15 +92,12 @@ class PendingEditService
         if (! $spouse) {
             throw ValidationException::withMessages(['proposed_data.spouse_id' => 'Phối ngẫu phải thuộc cùng dòng họ.']);
         }
-        if ($target->spouse_id && (int) $target->spouse_id !== $spouse->id) {
-            throw ValidationException::withMessages(['proposed_data.spouse_id' => 'Thành viên đang có phối ngẫu khác.']);
-        }
-        if ($spouse->spouse_id && (int) $spouse->spouse_id !== $target->id) {
-            throw ValidationException::withMessages(['proposed_data.spouse_id' => 'Thành viên được chọn đang có phối ngẫu khác.']);
-        }
-
         $target->update(['spouse_id' => $spouse->id]);
-        $spouse->update(['spouse_id' => $target->id]);
+        $spouse->update(['spouse_id' => $spouse->spouse_id ?: $target->id]);
+        DB::table('member_spouses')->insertOrIgnore([
+            ['member_id' => $target->id, 'spouse_id' => $spouse->id],
+            ['member_id' => $spouse->id, 'spouse_id' => $target->id],
+        ]);
     }
 
     private function applyAddChild(Member $target, array $data): void

@@ -9,6 +9,7 @@ export interface MemberFormData {
   father_id: string | null;
   mother_id: string | null;
   spouse_id: string | null;
+  spouse_ids: string[];
   generation: number;
   order_in_family: number;
   is_alive: boolean;

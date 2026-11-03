@@ -12,7 +12,7 @@ class PrayerSeeder extends Seeder
     public function run(): void
     {
         $family = Family::query()->where('code', 'nguyen-chi-3')->firstOrFail();
-        $author = User::query()->where('email', 'admin@gia-pha.local')->firstOrFail();
+        $author = User::query()->where('email', 'nvthanhhoian@gmail.com')->firstOrFail();
         $prayers = [
             ['Văn khấn Tết Nguyên Đán', 'tet', "Kính chào tổ tiên, cụ cố, tổ phụ!\nNgày Tết Nguyên Đán, con cháu cung kính bày lên lư hương, hoa quả, rượu, trà, bát cơm, nước và lễ vật tương vắt.\nNguyện cầu tổ tiên phù trì sức khỏe cho con cháu; gia đạo thuận hòa, trong ấm ngoài ơn, làm ăn phát đạt và mọi người an nhàn."],
             ['Văn khấn mùng 1 Tết', 'tet', "Kính lạy các cụ tổ, tổ phụ và các vị có công với dòng họ.\nMùng 1, con cháu họp mặt dâng hương, kính chúc tổ tiên mạnh khỏe, gia đạo an khang.\nChúng con nguyện cầu các cụ an nhàn, cả dòng họ tinh tiến và cả năm bình an."],

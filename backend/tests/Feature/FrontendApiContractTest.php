@@ -72,6 +72,54 @@ class FrontendApiContractTest extends TestCase
         $this->assertDatabaseMissing('members', ['id' => $memberId]);
     }
 
+    public function test_admin_can_assign_multiple_spouses_and_relationships_are_reciprocal(): void
+    {
+        $family = Family::query()->orderBy('id')->firstOrFail();
+        $user = User::query()->create([
+            'name' => 'Frontend Admin',
+            'email' => uniqid().'@example.test',
+            'password' => 'password-123',
+            'role' => UserRole::Admin,
+            'family_id' => $family->id,
+        ]);
+        $spouses = collect(['Vợ một', 'Vợ hai'])->map(fn (string $name) => Member::query()->create([
+            'family_id' => $family->id,
+            'full_name' => $name.' '.uniqid(),
+            'gender' => MemberGender::Female,
+            'generation' => 1,
+            'is_alive' => true,
+        ]));
+        Passport::actingAs($user);
+
+        $created = $this->postJson('/api/v1/members', [
+            'family_id' => $family->id,
+            'full_name' => 'Người có nhiều phối ngẫu',
+            'gender' => MemberGender::Male->value,
+            'generation' => 1,
+            'is_alive' => true,
+            'spouse_ids' => $spouses->pluck('id')->all(),
+        ])->assertCreated();
+        $memberId = $created->json('data.id');
+
+        $this->assertEqualsCanonicalizing($spouses->pluck('id')->all(), $created->json('data.spouse_ids'));
+        foreach ($spouses as $spouse) {
+            $this->assertDatabaseHas('member_spouses', ['member_id' => $memberId, 'spouse_id' => $spouse->id]);
+            $this->assertDatabaseHas('member_spouses', ['member_id' => $spouse->id, 'spouse_id' => $memberId]);
+        }
+
+        $this->putJson("/api/v1/members/{$memberId}", [
+            'full_name' => 'Người có nhiều phối ngẫu',
+            'gender' => MemberGender::Male->value,
+            'generation' => 1,
+            'is_alive' => true,
+            'spouse_ids' => [$spouses[1]->id],
+        ])->assertOk()->assertJsonPath('spouse_ids.0', $spouses[1]->id);
+
+        $this->assertDatabaseMissing('member_spouses', ['member_id' => $memberId, 'spouse_id' => $spouses[0]->id]);
+        $this->assertDatabaseMissing('member_spouses', ['member_id' => $spouses[0]->id, 'spouse_id' => $memberId]);
+        $this->assertDatabaseHas('member_spouses', ['member_id' => $memberId, 'spouse_id' => $spouses[1]->id]);
+    }
+
     public function test_public_member_search_and_alive_filter_keep_private_fields_hidden(): void
     {
         $family = Family::query()->orderBy('id')->firstOrFail();

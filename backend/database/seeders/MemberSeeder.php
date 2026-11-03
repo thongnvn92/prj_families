@@ -6,6 +6,7 @@ use App\Enums\MemberGender;
 use App\Models\Family;
 use App\Models\Member;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class MemberSeeder extends Seeder
 {
@@ -15,12 +16,17 @@ class MemberSeeder extends Seeder
             ['code' => 'nguyen-chi-3'],
             [
                 'name' => 'Gia phả Họ Nguyễn — Chi 3',
-                'root_ancestor_name' => 'Nguyễn Văn Minh',
+                'root_ancestor_name' => 'Nguyễn Văn Rinh',
                 'origin_place' => 'Thôn Trung, Bắc Ninh',
-                'description' => 'Dữ liệu gia phả mẫu 23 thành viên, 5 thế hệ.',
+                'description' => 'Dữ liệu gia phả mẫu 41 thành viên, 4 thế hệ.',
             ],
         );
         $snapshot = json_decode(file_get_contents(database_path('seeders/data/family_members.json')), true, flags: JSON_THROW_ON_ERROR);
+        $memberNames = array_column($snapshot, 'name');
+        Member::query()
+            ->where('family_id', $family->id)
+            ->whereNotIn('full_name', $memberNames)
+            ->delete();
         $ids = [];
         $order = [];
         foreach ($snapshot as $index => $data) {
@@ -47,21 +53,32 @@ class MemberSeeder extends Seeder
                     'burial_map_url' => $data['burialMapUrl'] ?? null,
                     'home_map_url' => $data['homeMapUrl'] ?? null,
                     'bio' => $data['bio'] ?? null,
-                    'avatar_url' => $data['avatarUrl'] ?: null,
-                    'phone' => $data['phone'] ?: null,
-                    'birthplace' => $data['birthplace'] ?: null,
-                    'address' => $data['address'] ?: null,
+                    'avatar_url' => $data['avatarUrl'] ?? null,
+                    'phone' => $data['phone'] ?? null,
+                    'birthplace' => $data['birthplace'] ?? null,
+                    'address' => $data['address'] ?? null,
                 ],
             );
             $order[$data['generation']] = $member->order_in_family;
             $ids[$data['id']] = $member->id;
         }
+        DB::table('member_spouses')
+            ->whereIn('member_id', array_values($ids))
+            ->orWhereIn('spouse_id', array_values($ids))
+            ->delete();
         foreach ($snapshot as $data) {
+            $spouseId = isset($data['spouseId']) ? $ids[$data['spouseId']] : null;
             Member::query()->whereKey($ids[$data['id']])->update([
                 'father_id' => isset($data['fatherId']) ? $ids[$data['fatherId']] : null,
                 'mother_id' => isset($data['motherId']) ? $ids[$data['motherId']] : null,
-                'spouse_id' => isset($data['spouseId']) ? $ids[$data['spouseId']] : null,
+                'spouse_id' => $spouseId,
             ]);
+            if ($spouseId) {
+                DB::table('member_spouses')->insertOrIgnore([
+                    ['member_id' => $ids[$data['id']], 'spouse_id' => $spouseId],
+                    ['member_id' => $spouseId, 'spouse_id' => $ids[$data['id']]],
+                ]);
+            }
         }
     }
 

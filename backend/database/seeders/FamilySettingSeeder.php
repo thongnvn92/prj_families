@@ -19,7 +19,7 @@ class FamilySettingSeeder extends Seeder
             $familyId,
             true,
             ['admin', 'mod', 'editor'],
-            User::query()->where('email', 'admin@gia-pha.local')->value('id'),
+            User::query()->where('email', 'nvthanhhoian@gmail.com')->value('id'),
         );
     }
 }

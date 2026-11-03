@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import type { ReactNode } from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -10,21 +9,27 @@ import { isPublicMember } from "../../lib/rbacFilter";
 interface TreeCanvasProps { root: FamilyMember | undefined; allMembers: FamilyMember[]; showDeceased: boolean; searchQuery: string; zoom: number; onSelectMember: (member: FamilyMember) => void; }
 
 export function TreeCanvas({ root, allMembers, showDeceased, searchQuery, zoom, onSelectMember }: TreeCanvasProps) {
-  const byId = useMemo(() => new Map(allMembers.map((member) => [member.id, member])), [allMembers]);
   const query = normalizeText(searchQuery.trim());
   const match = (member: FamilyMember) => Boolean(query) && normalizeText(`${member.name} ${member.role} ${member.birthYear}`).includes(query);
   if (!root) return <div className="flex min-h-[360px] items-center justify-center rounded-2xl border border-dashed border-stone-200 bg-stone-50/60 px-6 text-center text-sm text-stone-500" role="status">Chưa có dữ liệu thành viên để dựng cây gia phả.</div>;
-  return <div className="min-w-[1080px] pb-12 pt-4" style={{ transform: `scale(${zoom})`, transformOrigin: "top center", width: `${100 / zoom}%` }}><Branch member={root} all={allMembers} byId={byId} showDeceased={showDeceased} match={match} onSelect={onSelectMember} /></div>;
+  return <div className="w-max pb-12 pt-4" style={{ zoom, width: "max-content", marginInline: "auto" }}><Branch member={root} all={allMembers} showDeceased={showDeceased} match={match} onSelect={onSelectMember} /></div>;
 }
 
-function Branch({ member, all, byId, showDeceased, match, onSelect }: { member: FamilyMember | undefined; all: FamilyMember[]; byId: Map<string, FamilyMember>; showDeceased: boolean; match: (member: FamilyMember) => boolean; onSelect: (member: FamilyMember) => void }) {
+function Branch({ member, all, showDeceased, match, onSelect }: { member: FamilyMember | undefined; all: FamilyMember[]; showDeceased: boolean; match: (member: FamilyMember) => boolean; onSelect: (member: FamilyMember) => void }) {
   if (!member) return null;
-  const spouse = member.spouseId ? byId.get(member.spouseId) : undefined;
-  const children = all.filter((item) => item.fatherId === member.id).filter((item) => showDeceased || item.isAlive);
+  const memberSpouseIds = new Set(member.spouseIds ?? (member.spouseId ? [member.spouseId] : []));
+  const spouses = all.filter((candidate) => {
+    const candidateSpouseIds = candidate.spouseIds ?? (candidate.spouseId ? [candidate.spouseId] : []);
+    return candidate.id !== member.id && (memberSpouseIds.has(candidate.id)
+      || candidateSpouseIds.includes(member.id)
+      || (!candidate.spouseIds && Boolean(member.spouseId && candidate.spouseId === member.spouseId)));
+  });
+  const parentIds = new Set([member.id, ...spouses.map((spouse) => spouse.id)]);
+  const children = all.filter((item) => parentIds.has(item.fatherId ?? "") || parentIds.has(item.motherId ?? "")).filter((item) => showDeceased || item.isAlive);
   const showMember = showDeceased || member.isAlive;
-  const showSpouse = spouse && (showDeceased || spouse.isAlive);
-  if (!showMember && !showSpouse && children.length === 0) return null;
-  return <div className="flex flex-col items-center"><div className="flex items-center gap-3">{showMember && <Node member={member} highlighted={match(member)} onClick={() => onSelect(member)} />}{showSpouse && <><span className="text-[10px] text-stone-400">vợ / chồng</span><Node member={spouse} highlighted={match(spouse)} compact onClick={() => onSelect(spouse)} /></>}</div>{children.length > 0 && <div className="relative mt-8 flex gap-8 before:absolute before:bottom-0 before:left-1/2 before:top-0 before:w-px before:bg-stone-300 after:absolute after:left-6 after:right-6 after:top-0 after:h-px after:bg-stone-300"><div className="relative z-10 flex gap-8 pt-7 before:absolute before:left-1/2 before:top-[-1.75rem] before:h-7 before:w-px before:bg-stone-300">{children.map((child) => <Branch key={child.id} member={child} all={all} byId={byId} showDeceased={showDeceased} match={match} onSelect={onSelect} />)}</div></div>}</div>;
+  const visibleSpouses = spouses.filter((spouse) => showDeceased || spouse.isAlive);
+  if (!showMember && visibleSpouses.length === 0 && children.length === 0) return null;
+  return <div className="flex flex-col items-center"><div className="flex items-center gap-3">{showMember && <Node member={member} highlighted={match(member)} onClick={() => onSelect(member)} />}{visibleSpouses.map((spouse) => <span key={spouse.id} className="flex items-center gap-3"><span className="text-[10px] text-stone-400">vợ / chồng</span><Node member={spouse} highlighted={match(spouse)} compact onClick={() => onSelect(spouse)} /></span>)}</div>{children.length > 0 && <div className="relative mt-8 flex gap-8 after:absolute after:left-6 after:right-6 after:top-0 after:h-1.5 after:border-x after:border-t after:border-stone-300"><div className="relative z-10 flex gap-8 pt-7 before:absolute before:left-1/2 before:top-[-1.75rem] before:h-7 before:w-px before:bg-stone-300">{children.map((child) => <Branch key={child.id} member={child} all={all} showDeceased={showDeceased} match={match} onSelect={onSelect} />)}</div></div>}</div>;
 }
 
 function Node({ member, highlighted, onClick, compact = false }: { member: FamilyMember; highlighted: boolean; onClick: () => void; compact?: boolean }) {

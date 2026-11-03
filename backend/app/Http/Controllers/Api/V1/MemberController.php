@@ -29,7 +29,7 @@ class MemberController extends Controller
         ]);
         $user = $request->user();
         $guest = ! $user || $user->role->value === 'guest';
-        $query = Member::query()->with(['father:id,full_name', 'mother:id,full_name', 'spouse:id,full_name']);
+        $query = Member::query()->with(['father:id,full_name', 'mother:id,full_name', 'spouse:id,full_name', 'spouses:id,full_name']);
         if ($user && ! $guest) {
             FamilyScope::constrain($query, $user);
         } else {
@@ -59,7 +59,7 @@ class MemberController extends Controller
             abort_unless((int) $member->family_id === $familyId, 404);
         }
 
-        return new MemberResource($member->load(['father:id,full_name', 'mother:id,full_name', 'spouse:id,full_name']));
+        return new MemberResource($member->load(['father:id,full_name', 'mother:id,full_name', 'spouse:id,full_name', 'spouses:id,full_name']));
     }
 
     public function store(Request $request): JsonResponse
@@ -67,17 +67,31 @@ class MemberController extends Controller
         $data = $this->validated($request, true);
         $familyId = $request->user()->role->value === 'admin' ? $data['family_id'] : $request->user()->family_id;
         abort_if(! $familyId, 422, 'Tài khoản chưa được gán dòng họ.');
-        $member = Member::query()->create($this->normalize($data, (int) $familyId, null));
+        $member = DB::transaction(function () use ($data, $familyId): Member {
+            $normalized = $this->normalize($data, (int) $familyId, null);
+            $spouseIds = $normalized['spouse_ids'];
+            unset($normalized['spouse_ids']);
+            $member = Member::query()->create($normalized);
+            $this->syncSpouses($member, $spouseIds);
 
-        return response()->json(['data' => new MemberResource($member)], 201);
+            return $member;
+        });
+
+        return response()->json(['data' => new MemberResource($member->load('spouses'))], 201);
     }
 
     public function update(Request $request, Member $member): MemberResource
     {
         FamilyScope::assertCanManage($request->user(), $member->id);
-        $member->update($this->normalize($this->validated($request), (int) $member->family_id, (int) $member->id));
+        DB::transaction(function () use ($request, $member): void {
+            $normalized = $this->normalize($this->validated($request), (int) $member->family_id, (int) $member->id);
+            $spouseIds = $normalized['spouse_ids'];
+            unset($normalized['spouse_ids']);
+            $member->update($normalized);
+            $this->syncSpouses($member, $spouseIds);
+        });
 
-        return new MemberResource($member->fresh(['father', 'mother', 'spouse']));
+        return new MemberResource($member->fresh(['father', 'mother', 'spouse', 'spouses']));
     }
 
     public function destroy(Request $request, Member $member): JsonResponse
@@ -115,6 +129,8 @@ class MemberController extends Controller
             'father_id' => ['nullable', 'integer', Rule::exists('members', 'id')],
             'mother_id' => ['nullable', 'integer', 'different:father_id', Rule::exists('members', 'id')],
             'spouse_id' => ['nullable', 'integer', Rule::exists('members', 'id')],
+            'spouse_ids' => ['sometimes', 'array', 'max:50'],
+            'spouse_ids.*' => ['required', 'integer', 'distinct', Rule::exists('members', 'id')],
             'generation' => ['required', 'integer', 'min:1', 'max:100'],
             'order_in_family' => ['nullable', 'integer', 'min:1'],
             'is_alive' => ['required', 'boolean'],
@@ -139,6 +155,15 @@ class MemberController extends Controller
 
     private function normalize(array $data, int $familyId, ?int $memberId): array
     {
+        $spouseIds = array_key_exists('spouse_ids', $data)
+            ? $data['spouse_ids']
+            : (array_key_exists('spouse_id', $data)
+                ? ($data['spouse_id'] !== null ? [$data['spouse_id']] : [])
+                : ($memberId ? DB::table('member_spouses')->where('member_id', $memberId)->pluck('spouse_id')->all() : []));
+        $spouseIds = array_values(array_unique(array_map('intval', $spouseIds)));
+        unset($data['spouse_id']);
+        $data['spouse_ids'] = $spouseIds;
+
         if ($memberId === null) {
             $data['family_id'] = $familyId;
         }
@@ -148,15 +173,49 @@ class MemberController extends Controller
         if ($parents->isNotEmpty()) {
             $data['generation'] = $parents->max('generation') + 1;
         }
-        if (! empty($data['spouse_id'])) {
-            $spouse = Member::query()->whereKey($data['spouse_id'])->where('family_id', $familyId)->firstOrFail();
-            abort_if($memberId === $spouse->id, 422, 'Không thể tự liên kết phối ngẫu.');
-        }
+        $spouses = Member::query()->whereIn('id', $spouseIds)->where('family_id', $familyId)->get(['id']);
+        abort_if($spouses->count() !== count($spouseIds), 422, 'Phối ngẫu phải thuộc cùng dòng họ.');
         if ($memberId) {
-            $relationIds = array_filter([$data['father_id'] ?? null, $data['mother_id'] ?? null, $data['spouse_id'] ?? null]);
+            $relationIds = array_merge(array_filter([$data['father_id'] ?? null, $data['mother_id'] ?? null]), $spouseIds);
             abort_if(in_array($memberId, $relationIds, true), 422, 'Không thể tự liên kết quan hệ gia đình.');
         }
 
         return $data;
+    }
+
+    private function syncSpouses(Member $member, array $spouseIds): void
+    {
+        $spouseIds = array_values(array_diff($spouseIds, [$member->id]));
+        $existingIds = DB::table('member_spouses')
+            ->where('member_id', $member->id)
+            ->orWhere('spouse_id', $member->id)
+            ->get(['member_id', 'spouse_id'])
+            ->flatMap(fn ($row) => [$row->member_id, $row->spouse_id])
+            ->filter(fn ($id) => (int) $id !== $member->id)
+            ->unique()
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        foreach (array_diff($existingIds, $spouseIds) as $removedId) {
+            DB::table('member_spouses')
+                ->where(fn ($query) => $query->where('member_id', $member->id)->where('spouse_id', $removedId))
+                ->orWhere(fn ($query) => $query->where('member_id', $removedId)->where('spouse_id', $member->id))
+                ->delete();
+        }
+        if ($existingIds !== []) {
+            Member::query()
+                ->whereIn('id', array_diff($existingIds, $spouseIds))
+                ->where('spouse_id', $member->id)
+                ->update(['spouse_id' => null]);
+        }
+
+        foreach ($spouseIds as $spouseId) {
+            DB::table('member_spouses')->insertOrIgnore([
+                ['member_id' => $member->id, 'spouse_id' => $spouseId],
+                ['member_id' => $spouseId, 'spouse_id' => $member->id],
+            ]);
+        }
+
+        $member->forceFill(['spouse_id' => $spouseIds[0] ?? null])->save();
     }
 }
